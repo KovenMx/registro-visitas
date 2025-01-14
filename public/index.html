@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Visitantes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="text"], input[type="date"], input[type="time"], input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    input[type="file"] {
+      padding: 3px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      color: #ff0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Registro de Visitantes</h2>
+    <form id="form" enctype="multipart/form-data">
+      <label for="nombre">Nombre Completo</label>
+      <input type="text" name="nombre" placeholder="Ingresa tu nombre completo" required>
+
+      <label for="aQuienVisita">A quién Visita</label>
+      <input type="text" name="aQuienVisita" placeholder="Nombre de la persona que visitas" required>
+
+      <label for="motivo">Motivo de Visita</label>
+      <input type="text" name="motivo" placeholder="Motivo de la visita" required>
+
+      <label for="fecha">Fecha</label>
+      <input type="date" name="fecha" required>
+
+      <label for="horaEntrada">Hora de Entrada</label>
+      <input type="time" name="horaEntrada" required>
+
+      <label for="fileFoto">Subir Foto (INE y Placa)</label>
+      <input type="file" name="fileFoto" accept="image/*" required>
+
+      <button type="submit">Registrar</button>
+    </form>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    document.getElementById('form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const response = await fetch('/register', {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.text();
+      document.getElementById('status').innerText = result;
+    });
+  </script>
+</body>
+</html>
+
