@@ -1,4 +1,3 @@
-// Forzando despliegue
 const express = require('express');
 const multer = require('multer');
 const axios = require('axios');
@@ -82,7 +81,7 @@ app.get('/', (req, res) => {
     </head>
     <body>
       <div class="container">
-        <h2>Registro de Visitantes</h2>
+        <h2>Registrar Entrada</h2>
         <form id="registroForm" enctype="multipart/form-data">
           <input type="text" name="nombre" placeholder="Nombre Completo" required>
           <input type="text" name="aQuienVisita" placeholder="A quién Visita" required>
@@ -104,6 +103,39 @@ app.get('/', (req, res) => {
         <div id="loaderSalida">Procesando salida...</div>
         <div id="successSalida">✔ Salida registrada</div>
       </div>
+
+      <script>
+        // Registro de entrada
+        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          document.getElementById('loader').style.display = 'block';
+          const formData = new FormData(this);
+          const response = await fetch('/register', { method: 'POST', body: formData });
+          document.getElementById('loader').style.display = 'none';
+          if (response.ok) {
+            document.getElementById('success').style.display = 'block';
+          }
+        });
+
+        // Registro de salida
+        document.getElementById('salidaForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          document.getElementById('loaderSalida').style.display = 'block';
+          const formData = new FormData(this);
+          const response = await fetch('/salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              nombre: formData.get('nombreSalida'),
+              numeroCasa: formData.get('numeroCasaSalida') 
+            })
+          });
+          document.getElementById('loaderSalida').style.display = 'none';
+          if (response.ok) {
+            document.getElementById('successSalida').style.display = 'block';
+          }
+        });
+      </script>
     </body>
     </html>
   `);
