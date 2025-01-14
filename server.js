@@ -1,13 +1,13 @@
-const cors = require('cors');
-app.use(cors());
 const express = require('express');
 const multer = require('multer');
 const axios = require('axios');
+const cors = require('cors');  // Agregado para permitir solicitudes de cualquier origen
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());  // Activar CORS para evitar bloqueos en Render
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -37,8 +37,8 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
 
     res.status(200).send('Registro exitoso');
   } catch (error) {
-    console.error('Error al registrar:', error);
-    res.status(500).send('Error al registrar');
+    console.error('Error al registrar:', error.response ? error.response.data : error.message);
+    res.status(500).send(`Error al registrar: ${error.response ? error.response.data : error.message}`);
   }
 });
 
@@ -56,8 +56,8 @@ app.post('/salida', async (req, res) => {
 
     res.status(200).send('Hora de salida actualizada');
   } catch (error) {
-    console.error('Error al actualizar la hora de salida:', error);
-    res.status(500).send('Error al actualizar la hora de salida');
+    console.error('Error al actualizar la hora de salida:', error.response ? error.response.data : error.message);
+    res.status(500).send(`Error al actualizar la hora de salida: ${error.response ? error.response.data : error.message}`);
   }
 });
 
@@ -103,18 +103,24 @@ app.get('/', (req, res) => {
           document.getElementById('loader').style.display = 'none';
           if (response.ok) {
             document.getElementById('success').style.display = 'block';
+          } else {
+            alert('Error al registrar la entrada.');
           }
         });
 
         document.getElementById('salidaBtn').addEventListener('click', async function() {
           const nombre = prompt('Ingrese el nombre para registrar la salida:');
           if (nombre) {
-            await fetch('/salida', {
+            const response = await fetch('/salida', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ nombre })
             });
-            alert('Hora de salida registrada.');
+            if (response.ok) {
+              alert('Hora de salida registrada.');
+            } else {
+              alert('Error al registrar la salida.');
+            }
           }
         });
       </script>
