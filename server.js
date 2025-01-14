@@ -1,7 +1,8 @@
+const cors = require('cors');
+app.use(cors());
 const express = require('express');
 const multer = require('multer');
-const { google } = require('googleapis');
-const fs = require('fs');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -11,59 +12,32 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configuración de Multer para guardar imágenes
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
+// Configuración de Multer para manejar archivos
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Autenticación con Google
-const auth = new google.auth.GoogleAuth({
-  keyFile: 'credentials.json',
-  scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-});
-
-const sheets = google.sheets({ version: 'v4', auth });
-const drive = google.drive({ version: 'v3', auth });
+// URL del Google Apps Script Web App
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby--UYu7RgOBRovIxPZ9IjIkEK2nClE4KivNUtc9Nod8Sgd_5yCcq7OJuo8tAkM_JU8Ig/exec';
 
 // Ruta para registrar datos
 app.post('/register', upload.single('fileFoto'), async (req, res) => {
   try {
     const { nombre, aQuienVisita, numeroCasa, fecha, horaEntrada } = req.body;
-    const fileName = `${fecha}_${nombre}_${horaEntrada}.jpg`;
+    const imagenBase64 = req.file.buffer.toString('base64');
 
-    // Subir imagen a Google Drive
-    const fileMetadata = {
-      name: fileName,
-      parents: [process.env.FOLDER_ID]
-    };
-    const media = {
-      mimeType: req.file.mimetype,
-      body: fs.createReadStream(req.file.path)
-    };
-
-    const file = await drive.files.create({
-      resource: fileMetadata,
-      media: media,
-      fields: 'id, webViewLink'
-    });
-
-    const fileUrl = file.data.webViewLink;
-
-    // Guardar en Google Sheets
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.SHEET_ID,
-      range: 'Registro!A:G',
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: [[nombre, aQuienVisita, numeroCasa, horaEntrada, '', fecha, fileUrl]]
-      }
+    // Enviar datos al Google Apps Script
+    await axios.post(GOOGLE_SCRIPT_URL, {
+      nombre,
+      aQuienVisita,
+      numeroCasa,
+      fecha,
+      horaEntrada,
+      imagen: imagenBase64
     });
 
     res.status(200).send('Registro exitoso');
   } catch (error) {
-    console.error(error);
+    console.error('Error al registrar:', error);
     res.status(500).send('Error al registrar');
   }
 });
@@ -71,41 +45,23 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
 // Ruta para registrar hora de salida
 app.post('/salida', async (req, res) => {
   try {
-    const { nombre, horaSalida } = req.body;
+    const { nombre } = req.body;
+    const horaSalida = new Date().toLocaleTimeString();
 
-    // Buscar el registro en Google Sheets
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SHEET_ID,
-      range: 'Registro!A:G'
+    // Enviar solicitud para actualizar hora de salida
+    await axios.post(GOOGLE_SCRIPT_URL, {
+      nombre,
+      horaSalida
     });
 
-    const rows = response.data.values;
-    const rowIndex = rows.findIndex(row => row[0] === nombre && row[4] === '');
-
-    if (rowIndex !== -1) {
-      const updateRange = `Registro!E${rowIndex + 1}`;
-
-      // Actualizar la hora de salida
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: process.env.SHEET_ID,
-        range: updateRange,
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [[horaSalida]]
-        }
-      });
-
-      res.status(200).send('Hora de salida actualizada');
-    } else {
-      res.status(404).send('Registro no encontrado');
-    }
+    res.status(200).send('Hora de salida actualizada');
   } catch (error) {
-    console.error(error);
+    console.error('Error al actualizar la hora de salida:', error);
     res.status(500).send('Error al actualizar la hora de salida');
   }
 });
 
-// Ruta para servir el formulario con indicador de carga y confirmación
+// Ruta para servir el formulario con botón de salida
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -133,6 +89,7 @@ app.get('/', (req, res) => {
           <input type="file" name="fileFoto" required><br>
           <button type="submit">Registrar Entrada</button>
         </form>
+        <button id="salidaBtn">Registrar Salida</button>
         <div id="loader">Procesando...</div>
         <div id="success">✔ Registro Exitoso</div>
       </div>
@@ -146,6 +103,18 @@ app.get('/', (req, res) => {
           document.getElementById('loader').style.display = 'none';
           if (response.ok) {
             document.getElementById('success').style.display = 'block';
+          }
+        });
+
+        document.getElementById('salidaBtn').addEventListener('click', async function() {
+          const nombre = prompt('Ingrese el nombre para registrar la salida:');
+          if (nombre) {
+            await fetch('/salida', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nombre })
+            });
+            alert('Hora de salida registrada.');
           }
         });
       </script>
