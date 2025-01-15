@@ -1,126 +1,69 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro de Visitantes</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-    }
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Registro de Visitantes</title>
+      <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #28a745; color: #fff; font-weight: bold; border: none; cursor: pointer; }
+        button:hover { background-color: #218838; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Registrar Entrada</h2>
+        <form id="registroForm" enctype="multipart/form-data">
+          <input type="text" name="nombre" placeholder="Nombre Completo" required>
+          <input type="text" name="aQuienVisita" placeholder="A quién Visita" required>
+          <input type="text" name="numeroCasa" placeholder="Número de Casa" required>
+          <input type="date" name="fecha" required>
+          <input type="time" name="horaEntrada" required>
+          <input type="file" name="fileFoto" required>
+          <button type="submit">Registrar Entrada</button>
+        </form>
 
-    body {
-      background-color: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+        <h2>Registrar Salida</h2>
+        <form id="salidaForm">
+          <input type="text" name="nombreSalida" placeholder="Nombre Completo" required>
+          <input type="text" name="numeroCasaSalida" placeholder="Número de Casa" required>
+          <button type="submit">Registrar Salida</button>
+        </form>
+      </div>
 
-    .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      width: 100%;
-      max-width: 500px;
-    }
+      <script>
+        // Registro de entrada con recarga del formulario
+        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const response = await fetch('/register', { method: 'POST', body: formData });
+          if (response.ok) {
+            alert('✔ Registro Exitoso');
+            window.location.reload(); // ✅ Recarga el formulario después del registro
+          }
+        });
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #555;
-    }
-
-    input[type="text"], input[type="date"], input[type="time"], input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-    }
-
-    input[type="file"] {
-      padding: 3px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #28a745;
-      border: none;
-      border-radius: 5px;
-      color: #fff;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    #status {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-      color: #ff0000;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Registro de Visitantes</h2>
-    <form id="form" enctype="multipart/form-data">
-      <label for="nombre">Nombre Completo</label>
-      <input type="text" name="nombre" placeholder="Ingresa tu nombre completo" required>
-
-      <label for="aQuienVisita">A quién Visita</label>
-      <input type="text" name="aQuienVisita" placeholder="Nombre de la persona que visitas" required>
-
-      <label for="numeroCasa">Número de Casa</label>
-      <input type="text" name="numeroCasa" placeholder="Número de la casa" required>
-
-      <label for="fecha">Fecha</label>
-      <input type="date" name="fecha" required>
-
-      <label for="horaEntrada">Hora de Entrada</label>
-      <input type="time" name="horaEntrada" required>
-
-      <label for="horaSalida">Hora de Salida</label>
-      <input type="time" name="horaSalida">
-
-      <label for="fileFoto">Subir Foto (INE y Placa)</label>
-      <input type="file" name="fileFoto" accept="image/*" required>
-
-      <button type="submit">Registrar</button>
-    </form>
-    <p id="status"></p>
-  </div>
-
-  <script>
-    document.getElementById('form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const response = await fetch('/register', {
-        method: 'POST',
-        body: formData
-      });
-      const result = await response.text();
-      document.getElementById('status').innerText = result;
-    });
-  </script>
-</body>
-</html>
-
+        // Registro de salida
+        document.getElementById('salidaForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const response = await fetch('/salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              nombre: formData.get('nombreSalida'),
+              numeroCasa: formData.get('numeroCasaSalida') 
+            })
+          });
+          if (response.ok) {
+            alert('✔ Hora de salida registrada');
+            window.location.reload(); // ✅ Refresca la página después de registrar la salida
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});

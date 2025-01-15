@@ -75,8 +75,6 @@ app.get('/', (req, res) => {
         input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
         button { background-color: #28a745; color: #fff; font-weight: bold; border: none; cursor: pointer; }
         button:hover { background-color: #218838; }
-        #loader, #loaderSalida { display: none; margin-top: 10px; color: #ff9800; }
-        #success, #successSalida { display: none; color: #28a745; font-weight: bold; margin-top: 10px; }
       </style>
     </head>
     <body>
@@ -91,8 +89,6 @@ app.get('/', (req, res) => {
           <input type="file" name="fileFoto" required>
           <button type="submit">Registrar Entrada</button>
         </form>
-        <div id="loader">Procesando...</div>
-        <div id="success">✔ Registro Exitoso</div>
 
         <h2>Registrar Salida</h2>
         <form id="salidaForm">
@@ -100,27 +96,23 @@ app.get('/', (req, res) => {
           <input type="text" name="numeroCasaSalida" placeholder="Número de Casa" required>
           <button type="submit">Registrar Salida</button>
         </form>
-        <div id="loaderSalida">Procesando salida...</div>
-        <div id="successSalida">✔ Salida registrada</div>
       </div>
 
       <script>
-        // Registro de entrada
+        // Registro de entrada con recarga del formulario
         document.getElementById('registroForm').addEventListener('submit', async function(e) {
           e.preventDefault();
-          document.getElementById('loader').style.display = 'block';
           const formData = new FormData(this);
           const response = await fetch('/register', { method: 'POST', body: formData });
-          document.getElementById('loader').style.display = 'none';
           if (response.ok) {
-            document.getElementById('success').style.display = 'block';
+            alert('✔ Registro Exitoso');
+            window.location.reload(); // ✅ Recarga el formulario después del registro
           }
         });
 
         // Registro de salida
         document.getElementById('salidaForm').addEventListener('submit', async function(e) {
           e.preventDefault();
-          document.getElementById('loaderSalida').style.display = 'block';
           const formData = new FormData(this);
           const response = await fetch('/salida', {
             method: 'POST',
@@ -130,9 +122,9 @@ app.get('/', (req, res) => {
               numeroCasa: formData.get('numeroCasaSalida') 
             })
           });
-          document.getElementById('loaderSalida').style.display = 'none';
           if (response.ok) {
-            document.getElementById('successSalida').style.display = 'block';
+            alert('✔ Hora de salida registrada');
+            window.location.reload(); // ✅ Refresca la página después de registrar la salida
           }
         });
       </script>
