@@ -17,11 +17,11 @@ const upload = multer({ storage });
 // URL del Google Apps Script Web App (Actualizado)
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs54EfIGPhykzpItSw5rCEqRaZxHsjI3VDTerdzV2hl647CF86C6ijSo4kS2Ql3N01WQ/exec';
 
-// Ruta para registrar datos
+// Ruta para registrar datos (Entrada)
 app.post('/register', upload.single('fileFoto'), async (req, res) => {
   try {
     const { nombre, aQuienVisita, numeroCasa, fecha, horaEntrada } = req.body;
-    const imagenBase64 = req.file.buffer.toString('base64');
+    const imagenBase64 = req.file ? req.file.buffer.toString('base64') : null;
 
     await axios.post(GOOGLE_SCRIPT_URL, {
       nombre,
@@ -40,7 +40,7 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
   }
 });
 
-// Ruta para registrar hora de salida
+// Ruta para registrar salida en nueva fila
 app.post('/salida', async (req, res) => {
   try {
     const { nombre, numeroCasa, fecha, horaSalida } = req.body;
@@ -53,10 +53,10 @@ app.post('/salida', async (req, res) => {
       tipoRegistro: "Salida"
     });
 
-    res.status(200).send('Hora de salida actualizada');
+    res.status(200).send('Salida registrada correctamente');
   } catch (error) {
-    console.error('Error al actualizar la hora de salida:', error.response ? error.response.data : error.message);
-    res.status(500).send(`Error al actualizar la hora de salida: ${error.response ? error.response.data : error.message}`);
+    console.error('Error al registrar la salida:', error.response ? error.response.data : error.message);
+    res.status(500).send(`Error al registrar la salida: ${error.response ? error.response.data : error.message}`);
   }
 });
 
@@ -106,7 +106,7 @@ app.get('/', (req, res) => {
           const formData = new FormData(this);
           const response = await fetch('/register', { method: 'POST', body: formData });
           if (response.ok) {
-            alert('✔ Registro Exitoso');
+            alert('✔ Registro de entrada exitoso');
             window.location.reload();
           }
         });
@@ -121,11 +121,12 @@ app.get('/', (req, res) => {
               nombre: formData.get('nombreSalida'),
               numeroCasa: formData.get('numeroCasaSalida'),
               fecha: formData.get('fechaSalida'),
-              horaSalida: formData.get('horaSalida')
+              horaSalida: formData.get('horaSalida'),
+              tipoRegistro: "Salida"
             })
           });
           if (response.ok) {
-            alert('✔ Hora de salida registrada');
+            alert('✔ Registro de salida exitoso');
             window.location.reload();
           }
         });
