@@ -43,13 +43,13 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
 // Ruta para registrar hora de salida
 app.post('/salida', async (req, res) => {
   try {
-    const { nombre, numeroCasa } = req.body;
-    const horaSalida = new Date().toLocaleTimeString();
+    const { nombre, numeroCasa, fecha, horaSalida } = req.body;
 
     // Enviar solicitud para actualizar hora de salida
     await axios.post(GOOGLE_SCRIPT_URL, {
       nombre,
       numeroCasa,
+      fecha,
       horaSalida
     });
 
@@ -94,6 +94,8 @@ app.get('/', (req, res) => {
         <form id="salidaForm">
           <input type="text" name="nombreSalida" placeholder="Nombre Completo" required>
           <input type="text" name="numeroCasaSalida" placeholder="Número de Casa" required>
+          <input type="date" name="fechaSalida" required>
+          <input type="time" name="horaSalida" required>
           <button type="submit">Registrar Salida</button>
         </form>
       </div>
@@ -106,7 +108,7 @@ app.get('/', (req, res) => {
           const response = await fetch('/register', { method: 'POST', body: formData });
           if (response.ok) {
             alert('✔ Registro Exitoso');
-            window.location.reload(); // ✅ Recarga el formulario después del registro
+            window.location.reload();
           }
         });
 
@@ -119,12 +121,14 @@ app.get('/', (req, res) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               nombre: formData.get('nombreSalida'),
-              numeroCasa: formData.get('numeroCasaSalida') 
+              numeroCasa: formData.get('numeroCasaSalida'),
+              fecha: formData.get('fechaSalida'),
+              horaSalida: formData.get('horaSalida')
             })
           });
           if (response.ok) {
             alert('✔ Hora de salida registrada');
-            window.location.reload(); // ✅ Refresca la página después de registrar la salida
+            window.location.reload();
           }
         });
       </script>

@@ -29,6 +29,8 @@
         <form id="salidaForm">
           <input type="text" name="nombreSalida" placeholder="Nombre Completo" required>
           <input type="text" name="numeroCasaSalida" placeholder="Número de Casa" required>
+          <input type="date" name="fechaSalida" required>
+          <input type="time" name="horaSalida" required>
           <button type="submit">Registrar Salida</button>
         </form>
       </div>
@@ -41,7 +43,7 @@
           const response = await fetch('/register', { method: 'POST', body: formData });
           if (response.ok) {
             alert('✔ Registro Exitoso');
-            window.location.reload(); // ✅ Recarga el formulario después del registro
+            window.location.reload();
           }
         });
 
@@ -54,12 +56,14 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               nombre: formData.get('nombreSalida'),
-              numeroCasa: formData.get('numeroCasaSalida') 
+              numeroCasa: formData.get('numeroCasaSalida'),
+              fecha: formData.get('fechaSalida'),
+              horaSalida: formData.get('horaSalida')
             })
           });
           if (response.ok) {
             alert('✔ Hora de salida registrada');
-            window.location.reload(); // ✅ Refresca la página después de registrar la salida
+            window.location.reload();
           }
         });
       </script>
