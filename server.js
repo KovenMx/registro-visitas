@@ -23,7 +23,6 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
     const { nombre, aQuienVisita, numeroCasa, fecha, horaEntrada } = req.body;
     const imagenBase64 = req.file.buffer.toString('base64');
 
-    // Enviar datos al Google Apps Script
     await axios.post(GOOGLE_SCRIPT_URL, {
       nombre,
       aQuienVisita,
@@ -45,7 +44,6 @@ app.post('/salida', async (req, res) => {
   try {
     const { nombre, numeroCasa, fecha, horaSalida } = req.body;
 
-    // Enviar solicitud para actualizar hora de salida
     await axios.post(GOOGLE_SCRIPT_URL, {
       nombre,
       numeroCasa,
@@ -101,7 +99,6 @@ app.get('/', (req, res) => {
       </div>
 
       <script>
-        // Registro de entrada con recarga del formulario
         document.getElementById('registroForm').addEventListener('submit', async function(e) {
           e.preventDefault();
           const formData = new FormData(this);
@@ -112,7 +109,6 @@ app.get('/', (req, res) => {
           }
         });
 
-        // Registro de salida
         document.getElementById('salidaForm').addEventListener('submit', async function(e) {
           e.preventDefault();
           const formData = new FormData(this);
@@ -134,6 +130,7 @@ app.get('/', (req, res) => {
       </script>
     </body>
     </html>
-
+  `);
+});
 
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
