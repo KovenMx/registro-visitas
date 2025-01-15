@@ -14,8 +14,8 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// URL del Google Apps Script Web App
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby--UYu7RgOBRovIxPZ9IjIkEK2nClE4KivNUtc9Nod8Sgd_5yCcq7OJuo8tAkM_JU8Ig/exec';
+// URL del Google Apps Script Web App (Actualizado)
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs54EfIGPhykzpItSw5rCEqRaZxHsjI3VDTerdzV2hl647CF86C6ijSo4kS2Ql3N01WQ/exec';
 
 // Ruta para registrar datos
 app.post('/register', upload.single('fileFoto'), async (req, res) => {
@@ -29,7 +29,8 @@ app.post('/register', upload.single('fileFoto'), async (req, res) => {
       numeroCasa,
       fecha,
       horaEntrada,
-      imagen: imagenBase64
+      imagen: imagenBase64,
+      tipoRegistro: "Entrada"
     });
 
     res.status(200).send('Registro exitoso');
@@ -48,7 +49,8 @@ app.post('/salida', async (req, res) => {
       nombre,
       numeroCasa,
       fecha,
-      horaSalida
+      horaSalida,
+      tipoRegistro: "Salida"
     });
 
     res.status(200).send('Hora de salida actualizada');
