@@ -15,7 +15,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // URL del Google Apps Script Web App (Actualizado)
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs54EfIGPhykzpItSw5rCEqRaZxHsjI3VDTerdzV2hl647CF86C6ijSo4kS2Ql3N01WQ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0v_cEWaeiheLFylC5m7JFWej9pOSNU0ZdCiKX15dClXNsjWiNROuzswc5JVUvEwntww/exec';
 
 // Ruta para registrar datos (Entrada)
 app.post('/register', upload.single('fileFoto'), async (req, res) => {
@@ -70,11 +70,46 @@ app.get('/', (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Registro de Visitantes</title>
       <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; width: 400px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { background-color: #28a745; color: #fff; font-weight: bold; border: none; cursor: pointer; }
-        button:hover { background-color: #218838; }
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f0f2f5;
+          margin: 0;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+        }
+        .container {
+          background-color: #fff;
+          padding: 40px;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          width: 100%;
+          max-width: 500px;
+          text-align: center;
+        }
+        input, button {
+          width: 100%;
+          padding: 12px;
+          margin: 10px 0;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+        button {
+          background-color: #28a745;
+          color: #fff;
+          font-weight: bold;
+          border: none;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #218838;
+        }
+        h2 {
+          margin-bottom: 20px;
+          color: #333;
+        }
       </style>
     </head>
     <body>
@@ -99,38 +134,6 @@ app.get('/', (req, res) => {
           <button type="submit">Registrar Salida</button>
         </form>
       </div>
-
-      <script>
-        document.getElementById('registroForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const formData = new FormData(this);
-          const response = await fetch('/register', { method: 'POST', body: formData });
-          if (response.ok) {
-            alert('✔ Registro de entrada exitoso');
-            window.location.reload();
-          }
-        });
-
-        document.getElementById('salidaForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const formData = new FormData(this);
-          const response = await fetch('/salida', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              nombre: formData.get('nombreSalida'),
-              numeroCasa: formData.get('numeroCasaSalida'),
-              fecha: formData.get('fechaSalida'),
-              horaSalida: formData.get('horaSalida'),
-              tipoRegistro: "Salida"
-            })
-          });
-          if (response.ok) {
-            alert('✔ Registro de salida exitoso');
-            window.location.reload();
-          }
-        });
-      </script>
     </body>
     </html>
   `);
