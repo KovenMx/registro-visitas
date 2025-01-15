@@ -134,6 +134,41 @@ app.get('/', (req, res) => {
           <button type="submit">Registrar Salida</button>
         </form>
       </div>
+
+      <script>
+        document.getElementById('registroForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const response = await fetch('/register', { method: 'POST', body: formData });
+          if (response.ok) {
+            alert('✔ Registro exitoso');
+            window.location.reload();
+          } else {
+            alert('❌ Error al registrar entrada');
+          }
+        });
+
+        document.getElementById('salidaForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const response = await fetch('/salida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nombre: formData.get('nombreSalida'),
+              numeroCasa: formData.get('numeroCasaSalida'),
+              fecha: formData.get('fechaSalida'),
+              horaSalida: formData.get('horaSalida')
+            })
+          });
+          if (response.ok) {
+            alert('✔ Salida registrada');
+            window.location.reload();
+          } else {
+            alert('❌ Error al registrar salida');
+          }
+        });
+      </script>
     </body>
     </html>
   `);
